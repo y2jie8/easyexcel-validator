@@ -6,7 +6,7 @@ import com.github.excel.factory.ReadListenerFactory;
 import com.github.excel.factory.enums.ReadListenerEnum;
 import com.github.excel.listener.BaseReadListener;
 import lombok.SneakyThrows;
-import org.springframework.web.multipart.MultipartFile;
+import org.springframework.core.io.InputStreamSource;
 
 import java.io.InputStream;
 import java.lang.reflect.ParameterizedType;
@@ -60,7 +60,6 @@ public class ReadListenerHandler {
      * 是否使用hibernate valid验证
      */
     private Boolean isHibernateValid;
-
 
     /**
      * 是否可以保存
@@ -126,15 +125,11 @@ public class ReadListenerHandler {
         private Integer excelCheckSize;
         private Boolean isHibernateValid;
 
-        public Builder listener(Class<?> clazz) {
+        public Builder listener(Class<? extends BaseReadListener<?, ?>> clazz) {
             this.listener = ReadListenerFactory.getInstance(clazz);
             return this;
         }
 
-        public Builder listener(ReadListenerEnum readListenerEnum) {
-            this.listener = ReadListenerFactory.getInstance(readListenerEnum);
-            return this;
-        }
 
         public Builder file(InputStream inputStream) {
             this.inputStream = inputStream;
@@ -142,7 +137,7 @@ public class ReadListenerHandler {
         }
 
         @SneakyThrows
-        public Builder file(MultipartFile file) {
+        public Builder file(InputStreamSource file) {
             this.inputStream = file.getInputStream();
             return this;
         }

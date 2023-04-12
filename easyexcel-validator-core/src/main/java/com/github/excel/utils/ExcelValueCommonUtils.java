@@ -1,5 +1,6 @@
 package com.github.excel.utils;
 
+import cn.hutool.core.util.ReflectUtil;
 import cn.hutool.extra.spring.SpringUtil;
 import com.github.excel.adapter.ExcelPropertyExcelAdapter;
 import com.github.excel.adapter.base.BaseExcelValueAdapter;
@@ -42,7 +43,7 @@ public class ExcelValueCommonUtils {
     private static void fillMap() {
         Map<String, BaseExcelValueAdapter<?>> beansOfType = CastUtils.cast(SpringUtil.getBeansOfType(BaseExcelValueAdapter.class));
         for (BaseExcelValueAdapter<?> value : beansOfType.values()) {
-            Type genericType = ExcelPropertyExcelAdapter.class.getGenericInterfaces()[0];
+            Type genericType = value.getClass().getGenericInterfaces()[0];
             ParameterizedType parameterizedType = (ParameterizedType) genericType;
             Class<? extends Annotation> genericClass = CastUtils.cast(parameterizedType.getActualTypeArguments()[0]);
             map.put(genericClass, value);
