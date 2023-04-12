@@ -1,36 +1,36 @@
-package com.github.excel.utils;
+package com.github.excel.factory;
 
-import cn.hutool.core.util.ReflectUtil;
-import cn.hutool.extra.spring.SpringUtil;
-import com.github.excel.adapter.ExcelPropertyExcelAdapter;
-import com.github.excel.adapter.base.BaseExcelValueAdapter;
+import cn.hutool.core.util.ServiceLoaderUtil;
+import com.github.excel.adapter.base.BaseExcelValueProvider;
+import com.github.excel.utils.CastUtils;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
 /**
- * exce注解公共类
+ * exce注解选用工厂
  *
  * @author : y1
  * @className : BaseExcelValueCommon
  * @date: 2023/4/7 16:42
- * @description : exce注解公共类
+ * @description : exce注解选用工厂
  */
-public class ExcelValueCommonUtils {
-    private static final Map<Class<? extends Annotation>, BaseExcelValueAdapter<?>> map = new HashMap<>();
+public class ExcelValueFactory {
+    private static final Map<Class<? extends Annotation>, BaseExcelValueProvider<? extends Annotation>> map = new HashMap<>();
 
-    private ExcelValueCommonUtils() {
+    private ExcelValueFactory() {
     }
 
     /**
      * @param clazz
      * @return
      */
-    public static BaseExcelValueAdapter<? extends Annotation> getValueHandler(Class<? extends Annotation> clazz) {
+    public static BaseExcelValueProvider<? extends Annotation> getValueHandler(Class<? extends Annotation> clazz) {
         if (map.isEmpty()) {
             fillMap();
         }
@@ -41,8 +41,8 @@ public class ExcelValueCommonUtils {
      * 填充Map
      */
     private static void fillMap() {
-        Map<String, BaseExcelValueAdapter<?>> beansOfType = CastUtils.cast(SpringUtil.getBeansOfType(BaseExcelValueAdapter.class));
-        for (BaseExcelValueAdapter<?> value : beansOfType.values()) {
+        List<BaseExcelValueProvider<? extends Annotation>> excelValueProviderList = CastUtils.cast(ServiceLoaderUtil.loadList(BaseExcelValueProvider.class));
+        for (BaseExcelValueProvider<? extends Annotation> value : excelValueProviderList) {
             Type genericType = value.getClass().getGenericInterfaces()[0];
             ParameterizedType parameterizedType = (ParameterizedType) genericType;
             Class<? extends Annotation> genericClass = CastUtils.cast(parameterizedType.getActualTypeArguments()[0]);

@@ -10,7 +10,7 @@ import java.lang.annotation.Annotation;
  * @date: 2023/4/7 16:27
  * @description : Excel接口
  */
-public interface BaseExcelValueAdapter<A extends Annotation> {
+public interface BaseExcelValueProvider<A extends Annotation> {
     /**
      * 获取excel注解值
      *
