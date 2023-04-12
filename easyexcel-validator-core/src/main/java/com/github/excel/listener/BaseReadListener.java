@@ -8,6 +8,7 @@ import com.alibaba.excel.exception.ExcelDataConvertException;
 import com.alibaba.excel.metadata.CellExtra;
 import com.alibaba.excel.read.listener.ReadListener;
 import com.alibaba.excel.read.metadata.holder.AbstractReadHolder;
+import com.alibaba.excel.util.ListUtils;
 import com.github.excel.annotation.OnlyKey;
 import com.github.excel.common.ReadListenerCommon;
 import com.github.excel.function.LambdaQueryFunction;
@@ -33,7 +34,7 @@ public abstract class BaseReadListener<T, A extends Annotation> extends ReadList
     /**
      * 缓存的数据
      */
-    private final List<T> cachedDataList = new ArrayList<>();
+    private final List<T> cachedDataList = ListUtils.newArrayList();
 
     protected Integer index = -1;
 
@@ -97,9 +98,8 @@ public abstract class BaseReadListener<T, A extends Annotation> extends ReadList
     @Override
     public void invoke(T data, AnalysisContext context) {
         if (log.isDebugEnabled()) {
-            log.info("Parse to a piece of data:{}", data.toString());
+            log.debug("Parse to a piece of data:{}", data.toString());
         }
-        // 跳过空行
         ifPresent(this.nonEmpty(data), () -> {
             // 判断必填项
             validatorField(data, context);

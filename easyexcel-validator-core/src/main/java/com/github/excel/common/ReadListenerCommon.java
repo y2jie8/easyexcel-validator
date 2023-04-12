@@ -40,9 +40,15 @@ public abstract class ReadListenerCommon<T, A extends Annotation> extends ExcelA
     @Getter
     private final Class<T> clazz;
     private final Field[] fields;
+    /**
+     * 单次检查excel行数
+     */
     @Setter
     @Getter
     private Integer excelCheckSize;
+    /**
+     * 是否开启hibernate-valid默认不开启
+     */
     @Getter
     @Setter
     private Boolean isHibernateValid;
