@@ -1,9 +1,9 @@
 package com.github.excel.common;
 
-import com.github.excel.adapter.base.BaseExcelValueAdapter;
 import com.github.excel.utils.CastUtils;
 import com.github.excel.utils.ExcelValueCommonUtils;
 import com.google.common.reflect.TypeToken;
+import com.github.excel.adapter.base.BaseExcelValueAdapter;
 import lombok.Getter;
 import lombok.Setter;
 
