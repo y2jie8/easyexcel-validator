@@ -3,10 +3,10 @@ package com.github.excel.common;
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.lang.Pair;
 import cn.hutool.core.lang.Validator;
+import cn.hutool.core.lang.func.Func1;
+import cn.hutool.core.lang.func.LambdaUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.ReflectUtil;
-import com.baomidou.mybatisplus.core.toolkit.LambdaUtils;
-import com.baomidou.mybatisplus.core.toolkit.support.SFunction;
 import com.github.excel.annotation.OnlyKey;
 import com.github.excel.dto.ExcelErrorDto;
 import com.github.excel.utils.CastUtils;
@@ -14,7 +14,6 @@ import lombok.Getter;
 import lombok.NonNull;
 import lombok.Setter;
 import lombok.SneakyThrows;
-import org.apache.ibatis.reflection.property.PropertyNamer;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
@@ -108,7 +107,7 @@ public abstract class ReadListenerCommon<T, A extends Annotation> extends ExcelA
      * @param row
      * @param errorMsg
      */
-    protected void addErrorData(String row, SFunction<T, ?> column, String errorMsg) {
+    protected void addErrorData(String row, Func1<T, ?> column, String errorMsg) {
         ExcelErrorDto errorDto = new ExcelErrorDto(row, null, getExcelPropertyValue(column) + errorMsg);
         fillErrorData(row, errorDto);
     }
@@ -183,7 +182,7 @@ public abstract class ReadListenerCommon<T, A extends Annotation> extends ExcelA
      * @param key    值
      * @param action 存在执行function
      */
-    protected <K, V> void checkMapCommon(Map<K, V> map, K key, Consumer<V> action, SFunction<T, ?> column) {
+    protected <K, V> void checkMapCommon(Map<K, V> map, K key, Consumer<V> action, Func1<T, ?> column) {
         ifPresent(Validator.isNotEmpty(key), () -> {
             Optional.ofNullable(map.get(key)).ifPresentOrElse(action, () -> {
                 this.addErrorData(getIndex().toString(), column, nonExists(key));
@@ -199,7 +198,7 @@ public abstract class ReadListenerCommon<T, A extends Annotation> extends ExcelA
      * @param action        存在执行function
      * @param typeConverter 转换器
      */
-    protected <K, V, R> void checkMapCommon(Map<K, V> map, K key, Consumer<R> action, Function<V, R> typeConverter, SFunction<T, ?> column) {
+    protected <K, V, R> void checkMapCommon(Map<K, V> map, K key, Consumer<R> action, Function<V, R> typeConverter, Func1<T, ?> column) {
         ifPresent(Validator.isNotEmpty(key), () -> {
             Optional.ofNullable(map.get(key)).ifPresentOrElse(item -> action.accept(typeConverter.apply(item)), () -> {
                 this.addErrorData(getIndex().toString(), column, nonExists(key));
@@ -217,7 +216,7 @@ public abstract class ReadListenerCommon<T, A extends Annotation> extends ExcelA
      * @param key 值
      * @return V
      */
-    protected <K, V> V checkMapCommon(Map<K, V> map, K key, SFunction<T, ?> column) {
+    protected <K, V> V checkMapCommon(Map<K, V> map, K key, Func1<T, ?> column) {
         return Optional.ofNullable(map.get(key)).orElseGet(() -> {
             this.addErrorData(getIndex().toString(), column, nonExists(key));
             return null;
@@ -232,7 +231,7 @@ public abstract class ReadListenerCommon<T, A extends Annotation> extends ExcelA
      * @param action       存在直接执行action
      * @param defaultValue 不存在 使用默认值 调用action 传递defaultValue
      */
-    protected <K, V> void checkMapCommon(Map<K, V> map, K key, Consumer<V> action, V defaultValue, SFunction<T, ?> column) {
+    protected <K, V> void checkMapCommon(Map<K, V> map, K key, Consumer<V> action, V defaultValue, Func1<T, ?> column) {
         ifPresent(Validator.isNotEmpty(key), () -> {
             Optional.ofNullable(map.get(key)).ifPresentOrElse(action, () -> {
                 this.addErrorData(getIndex().toString(), column, nonExists(key));
@@ -247,7 +246,7 @@ public abstract class ReadListenerCommon<T, A extends Annotation> extends ExcelA
      * @param key      值
      * @param action   存在执行function
      */
-    protected <K, V> void checkMapCommon(Supplier<Map<K, V>> supplier, K key, Consumer<V> action, SFunction<T, ?> column) {
+    protected <K, V> void checkMapCommon(Supplier<Map<K, V>> supplier, K key, Consumer<V> action, Func1<T, ?> column) {
         Optional.ofNullable(supplier.get().get(key)).ifPresentOrElse(action, () -> {
             this.addErrorData(getIndex().toString(), column, nonExists(key));
         });
@@ -260,7 +259,7 @@ public abstract class ReadListenerCommon<T, A extends Annotation> extends ExcelA
      * @param mapper
      * @param key
      */
-    protected <E> void checkSetCommon(List<E> list, Function<E, String> mapper, String key, SFunction<T, ?> column) {
+    protected <E> void checkSetCommon(List<E> list, Function<E, String> mapper, String key, Func1<T, ?> column) {
         ifPresent(list.stream().map(mapper).collect(Collectors.toSet()).contains(key), () -> this.addErrorData(getIndex().toString(), column, exists(key)));
     }
 
@@ -272,7 +271,7 @@ public abstract class ReadListenerCommon<T, A extends Annotation> extends ExcelA
      * @param mapper
      * @param key
      */
-    protected <V> void checkItselfSetCommon(List<T> list, Function<T, V> mapper, V key, SFunction<T, ?> column) {
+    protected <V> void checkItselfSetCommon(List<T> list, Function<T, V> mapper, V key, Func1<T, ?> column) {
         ifPresent(list.stream().map(mapper).collect(Collectors.toList()).stream().filter(i -> i.equals(key)).count() > 1, () -> this.addErrorData(getIndex().toString(), column, tableExists(key)));
     }
 
@@ -282,7 +281,7 @@ public abstract class ReadListenerCommon<T, A extends Annotation> extends ExcelA
      * @param list
      * @param key
      */
-    protected <E> void checkItselfSetCommon(Collection<E> list, E key, SFunction<T, ?> column) {
+    protected <E> void checkItselfSetCommon(Collection<E> list, E key, Func1<T, ?> column) {
         ifPresent(list.stream().filter(i -> i.equals(key)).count() > 1, () -> this.addErrorData(getIndex().toString(), column, tableExists(key)));
     }
 
@@ -559,8 +558,8 @@ public abstract class ReadListenerCommon<T, A extends Annotation> extends ExcelA
      * @param column
      * @return
      */
-    protected String getExcelPropertyValue(SFunction<T, ?> column) {
-        String fieldName = PropertyNamer.methodToProperty(LambdaUtils.extract(column).getImplMethodName());
+    protected String getExcelPropertyValue(Func1<T, ?> column) {
+        String fieldName = LambdaUtil.getFieldName(column);
         Field field = this.fieldMap.get(fieldName);
         return replace(getExcelPropertyValue(field));
     }

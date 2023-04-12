@@ -1,14 +1,15 @@
 package com.github.excel.common;
 
+
 import com.github.excel.utils.CastUtils;
 import com.github.excel.utils.ExcelValueCommonUtils;
-import com.google.common.reflect.TypeToken;
 import com.github.excel.adapter.base.BaseExcelValueAdapter;
 import lombok.Getter;
 import lombok.Setter;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
+import java.lang.reflect.ParameterizedType;
 
 /**
  * excel字段处理器
@@ -20,9 +21,7 @@ import java.lang.reflect.Field;
  */
 public abstract class ExcelAnnotationHandler<A extends Annotation> {
     public ExcelAnnotationHandler() {
-        TypeToken<A> typeToken = new TypeToken<A>(getClass()) {
-        };
-        this.clazzAnnotation = CastUtils.cast(typeToken.getRawType());
+        this.clazzAnnotation = CastUtils.cast(((ParameterizedType) getClass().getGenericSuperclass()).getActualTypeArguments()[1]);
         this.baseExcelValueHandler = CastUtils.cast(ExcelValueCommonUtils.getValueHandler(this.clazzAnnotation));
     }
 
