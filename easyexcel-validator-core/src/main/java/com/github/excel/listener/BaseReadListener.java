@@ -10,7 +10,7 @@ import com.alibaba.excel.read.listener.ReadListener;
 import com.alibaba.excel.read.metadata.holder.AbstractReadHolder;
 import com.alibaba.excel.util.ListUtils;
 import com.github.excel.annotation.OnlyKey;
-import com.github.excel.common.ReadListenerCommon;
+import com.github.excel.engine.ReadListenerEngine;
 import com.github.excel.function.LambdaQueryFunction;
 import com.github.excel.validator.ExcelValidator;
 import lombok.NonNull;
@@ -30,7 +30,7 @@ import java.util.*;
  * @description : 读取Excel文件监听基类
  */
 @Slf4j
-public abstract class BaseReadListener<T, A extends Annotation> extends ReadListenerCommon<T, A> implements ReadListener<T>, LambdaQueryFunction {
+public abstract class BaseReadListener<T, A extends Annotation> extends ReadListenerEngine<T, A> implements ReadListener<T>, LambdaQueryFunction {
     /**
      * 缓存的数据
      */
@@ -262,19 +262,4 @@ public abstract class BaseReadListener<T, A extends Annotation> extends ReadList
      * @param collect
      */
     protected abstract void execute(List<T> collect);
-
-    /**
-     * 获取字段ExcelProperty的Value
-     *
-     * @param field
-     * @return
-     */
-    @Override
-    protected String getExcelPropertyValue(Field field) {
-        if (isAnnotationPresent(field)) {
-            A annotation = super.getAnnotation(field);
-            return this.getBaseExcelValueHandler().getExcelValue(annotation);
-        }
-        return EMPTY;
-    }
 }

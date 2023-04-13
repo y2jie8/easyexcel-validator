@@ -1,7 +1,5 @@
-package com.github.excel.adapter;
+package com.github.excel.provider.impl;
 //import cn.afterturn.easypoi.excel.annotation.Excel;
-
-import com.github.excel.adapter.base.BaseExcelValueProvider;
 
 /**
  * 未来提供easypoi支持

@@ -1,7 +1,7 @@
 package com.github.excel.factory;
 
 import cn.hutool.core.util.ServiceLoaderUtil;
-import com.github.excel.adapter.base.BaseExcelValueProvider;
+import com.github.excel.provider.ExcelValueProvider;
 import com.github.excel.utils.CastUtils;
 
 import java.lang.annotation.Annotation;
@@ -21,7 +21,7 @@ import java.util.Optional;
  * @description : exce注解选用工厂
  */
 public class ExcelValueFactory {
-    private static final Map<Class<? extends Annotation>, BaseExcelValueProvider<? extends Annotation>> map = new HashMap<>();
+    private static final Map<Class<? extends Annotation>, ExcelValueProvider<? extends Annotation>> map = new HashMap<>();
 
     private ExcelValueFactory() {
     }
@@ -30,7 +30,7 @@ public class ExcelValueFactory {
      * @param clazz
      * @return
      */
-    public static BaseExcelValueProvider<? extends Annotation> getValueHandler(Class<? extends Annotation> clazz) {
+    public static ExcelValueProvider<? extends Annotation> getValueHandler(Class<? extends Annotation> clazz) {
         if (map.isEmpty()) {
             fillMap();
         }
@@ -41,8 +41,8 @@ public class ExcelValueFactory {
      * 填充Map
      */
     private static void fillMap() {
-        List<BaseExcelValueProvider<? extends Annotation>> excelValueProviderList = CastUtils.cast(ServiceLoaderUtil.loadList(BaseExcelValueProvider.class));
-        for (BaseExcelValueProvider<? extends Annotation> value : excelValueProviderList) {
+        List<ExcelValueProvider<? extends Annotation>> excelValueProviderList = CastUtils.cast(ServiceLoaderUtil.loadList(ExcelValueProvider.class));
+        for (ExcelValueProvider<? extends Annotation> value : excelValueProviderList) {
             Type genericType = value.getClass().getGenericInterfaces()[0];
             ParameterizedType parameterizedType = (ParameterizedType) genericType;
             Class<? extends Annotation> genericClass = CastUtils.cast(parameterizedType.getActualTypeArguments()[0]);

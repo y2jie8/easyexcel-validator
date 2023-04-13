@@ -1,9 +1,9 @@
-package com.github.excel.adapter;
+package com.github.excel.provider.impl;
 
 import com.alibaba.excel.annotation.ExcelProperty;
-import com.github.excel.adapter.base.BaseExcelValueProvider;
+import com.github.excel.provider.ExcelValueProvider;
 
-public class ExcelPropertyProviderImpl implements BaseExcelValueProvider<ExcelProperty> {
+public class ExcelPropertyProviderImpl implements ExcelValueProvider<ExcelProperty> {
     /**
      * 获取excel注解值
      *

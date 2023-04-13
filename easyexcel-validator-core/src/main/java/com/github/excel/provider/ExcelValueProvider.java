@@ -1,16 +1,16 @@
-package com.github.excel.adapter.base;
+package com.github.excel.provider;
 
 import java.lang.annotation.Annotation;
 
 /**
- * Excel接口
+ * Excel获取注解值Provider
  *
  * @author : y1
- * @className : BaseExcelValue
+ * @className : ExcelValueProvider
  * @date: 2023/4/7 16:27
  * @description : Excel接口
  */
-public interface BaseExcelValueProvider<A extends Annotation> {
+public interface ExcelValueProvider<A extends Annotation> {
     /**
      * 获取excel注解值
      *

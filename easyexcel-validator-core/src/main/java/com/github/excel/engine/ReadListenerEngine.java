@@ -1,4 +1,4 @@
-package com.github.excel.common;
+package com.github.excel.engine;
 
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.lang.Pair;
@@ -8,6 +8,7 @@ import cn.hutool.core.lang.func.LambdaUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.ReflectUtil;
 import com.github.excel.annotation.OnlyKey;
+import com.github.excel.processor.ExcelAnnotationProcessor;
 import com.github.excel.dto.ExcelErrorDto;
 import com.github.excel.utils.CastUtils;
 import lombok.Getter;
@@ -24,17 +25,16 @@ import java.util.function.*;
 import java.util.stream.Collectors;
 
 /**
- * 服务Excel监听器工具
+ * 服务Excel监听器核心模块
  *
  * @author : y1
- * @className : ReadListenerCommon
+ * @className : ReadListenerEngine
  * @date: 2023/3/22 17:01
- * @description : 服务Excel监听器工具
+ * @description : 服务Excel监听器核心模块
  */
-public abstract class ReadListenerCommon<T, A extends Annotation> extends ExcelAnnotationHandler<A> {
+public abstract class ReadListenerEngine<T, A extends Annotation> extends ExcelAnnotationProcessor<A> {
     private final Map<String, ExcelErrorDto> errorDataMap = new TreeMap<>();
 
-    protected final static String EMPTY = "";
     @Getter
     private final Map<String, Field> fieldMap;
     @Getter
@@ -53,7 +53,7 @@ public abstract class ReadListenerCommon<T, A extends Annotation> extends ExcelA
     @Setter
     private Boolean isHibernateValid;
 
-    public ReadListenerCommon() {
+    public ReadListenerEngine() {
         super();
         this.clazz = CastUtils.cast(((ParameterizedType) getClass().getGenericSuperclass()).getActualTypeArguments()[0]);
         this.fields = ReflectUtil.getFieldsDirectly(clazz, false);
@@ -93,7 +93,7 @@ public abstract class ReadListenerCommon<T, A extends Annotation> extends ExcelA
      */
     protected void addErrorData(String row, String onlyKey, String errorMsg) {
         ExcelErrorDto errorDto = new ExcelErrorDto(row, onlyKey, errorMsg);
-        fillErrorData(row, errorDto);
+        this.fillErrorData(row, errorDto);
     }
 
     /**
@@ -104,7 +104,7 @@ public abstract class ReadListenerCommon<T, A extends Annotation> extends ExcelA
      */
     protected void addErrorData(String row, String errorMsg) {
         ExcelErrorDto errorDto = new ExcelErrorDto(row, null, errorMsg);
-        fillErrorData(row, errorDto);
+        this.fillErrorData(row, errorDto);
     }
 
     /**
@@ -114,8 +114,8 @@ public abstract class ReadListenerCommon<T, A extends Annotation> extends ExcelA
      * @param errorMsg
      */
     protected void addErrorData(String row, Func1<T, ?> column, String errorMsg) {
-        ExcelErrorDto errorDto = new ExcelErrorDto(row, null, getExcelPropertyValue(column) + errorMsg);
-        fillErrorData(row, errorDto);
+        ExcelErrorDto errorDto = new ExcelErrorDto(row, null, this.getExcelPropertyValue(column) + errorMsg);
+        this.fillErrorData(row, errorDto);
     }
 
     /**
@@ -548,7 +548,7 @@ public abstract class ReadListenerCommon<T, A extends Annotation> extends ExcelA
                     Object o = firstFields.get(v.getName());
                     if (!ObjectUtil.equal(o, fieldValue)) {
                         if (isAnnotationPresent(v)) {
-                            String value = getExcelPropertyValue(v);
+                            String value = super.getExcelPropertyValue(v);
                             value = super.replace(value);
                             this.addErrorDataRow(min.get().toString(), max.get().toString(), onlyKey.get(), value.concat("字段主表维护数据不一致;"));
                         }
@@ -564,9 +564,10 @@ public abstract class ReadListenerCommon<T, A extends Annotation> extends ExcelA
      * @param column
      * @return
      */
-    protected String getExcelPropertyValue(Func1<T, ?> column) {
+    @Override
+    protected String getExcelPropertyValue(Func1<?, ?> column) {
         String fieldName = LambdaUtil.getFieldName(column);
         Field field = this.fieldMap.get(fieldName);
-        return replace(getExcelPropertyValue(field));
+        return super.replace(super.getExcelPropertyValue(field));
     }
 }
