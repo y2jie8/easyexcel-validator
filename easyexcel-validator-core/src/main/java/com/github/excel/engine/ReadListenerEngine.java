@@ -180,6 +180,9 @@ public abstract class ReadListenerEngine<T, A extends Annotation> extends ExcelA
         return String.valueOf(key).concat("不存在;");
     }
 
+    protected String nonExists() {
+        return "【黄色部分】需不填或全部填写;";
+    }
 
     /**
      * 检验数据字典是否存在
@@ -437,7 +440,7 @@ public abstract class ReadListenerEngine<T, A extends Annotation> extends ExcelA
      * @param <R>
      * @param <E>
      */
-    protected <K, R, E> void setObjectsWithListCommon(K key, E entity, Function<K, R> typeConverter, BiConsumer<E, R> consumer) {
+    private <K, R, E> void setObjectsWithListCommon(K key, E entity, Function<K, R> typeConverter, BiConsumer<E, R> consumer) {
         R value = typeConverter.apply(key);
         consumer.accept(entity, value);
     }
@@ -468,7 +471,7 @@ public abstract class ReadListenerEngine<T, A extends Annotation> extends ExcelA
      * @param <K>
      * @param <E>
      */
-    protected <K, E, R> void setObjectsWithListCommon(List<List<K>> list, List<E> entityList, List<Pair<BiConsumer<E, R>, Function<K, R>>> setterPairs) {
+    private <K, E, R> void setObjectsWithListCommon(List<List<K>> list, List<E> entityList, List<Pair<BiConsumer<E, R>, Function<K, R>>> setterPairs) {
         for (int i = 0; i < entityList.size(); i++) {
             for (int j = 0; j < list.size(); j++) {
                 setObjectsWithListCommon(list.get(j).get(i), entityList.get(i), setterPairs.get(j).getValue(), setterPairs.get(j).getKey());
@@ -486,6 +489,10 @@ public abstract class ReadListenerEngine<T, A extends Annotation> extends ExcelA
      * @param <E>
      */
     protected <K, E, R> List<E> setObjectsWithListCommon(List<List<K>> list, Class<E> clazz, List<Pair<BiConsumer<E, R>, Function<K, R>>> setterPairs) {
+        Set<Integer> collect = list.stream().map(List::size).collect(Collectors.toSet());
+        if (collect.size() > 1) {
+            this.addErrorData(getIndex().toString(), nonExists());
+        }
         List<E> entityList = toList(clazz, list.get(0).size());
         setObjectsWithListCommon(list, entityList, setterPairs);
         return entityList;
