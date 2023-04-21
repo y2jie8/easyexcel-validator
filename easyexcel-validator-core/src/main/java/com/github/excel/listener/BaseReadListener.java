@@ -190,7 +190,7 @@ public abstract class BaseReadListener<T extends ExcelInDto, A extends Annotatio
         if (cachedDataList.isEmpty()) {
             throw new RuntimeException("未读取到Excel数据");
         }
-        this.setIndex(((AbstractReadHolder) context.currentReadHolder()).getHeadRowNumber() + 1);
+        this.setIndex(getExcelIndex(context));
         List<List<T>> excelList = CollUtil.split(cachedDataList, super.getExcelCheckSize());
         excelList.forEach(excelItem -> {
             if (isSuccess()) {
