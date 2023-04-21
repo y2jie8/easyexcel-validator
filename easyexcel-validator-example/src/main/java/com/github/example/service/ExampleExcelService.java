@@ -1,5 +1,6 @@
 package com.github.example.service;
 
+import cn.hutool.core.collection.CollUtil;
 import com.github.example.entity.ExampleExcel;
 
 import java.util.ArrayList;
@@ -18,19 +19,16 @@ import java.util.stream.Stream;
  * @description : 示例service
  */
 public interface ExampleExcelService {
-    List<ExampleExcel> list = new ArrayList<ExampleExcel>() {
-        List<ExampleExcel> init() {
-            ExampleExcel excel = new ExampleExcel();
-            excel.setCreatorId("1");
-            excel.setInitialsName("张三");
-            excel = new ExampleExcel();
-            excel.setCreatorId("2");
-            excel.setInitialsName("李四");
-            list.add(excel);
-            return list;
-        }
-    }.init();
-
+    List<ExampleExcel> list = CollUtil.newArrayList();
+    default void deal(){
+        ExampleExcel excel = new ExampleExcel();
+        excel.setCreatorId("1");
+        excel.setInitialsName("张三");
+        excel = new ExampleExcel();
+        excel.setCreatorId("2");
+        excel.setInitialsName("李四");
+        list.add(excel);
+    }
 
     default Map<String, String> getNameMaps() {
         HashMap<String, String> map = new HashMap<>();

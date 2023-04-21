@@ -1,6 +1,6 @@
 package com.github.example;
 
-import com.github.example.excel.ExampleExcelParam;
+import cn.hutool.core.io.resource.ResourceUtil;
 import com.github.example.listener.ExampleExcelListener;
 import com.github.excel.handler.ReadListenerHandler;
 import lombok.extern.slf4j.Slf4j;
@@ -21,7 +21,9 @@ import java.io.InputStream;
 @Slf4j
 public class ExampleRun {
     public static void main(String[] args) throws FileNotFoundException {
-        File file = new File("example.xls");
+
+        String fileName = ResourceUtil.getResource("example.xlsx").getFile();
+        File file = new File(fileName);
         InputStream in = new FileInputStream(file);
         ReadListenerHandler handler = ReadListenerHandler.builder()
                 .listener(ExampleExcelListener.class)

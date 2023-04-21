@@ -36,6 +36,7 @@ public class ExampleExcelListener extends BaseReadListener<ExampleExcelParam, Ex
      */
     @Override
     protected void execute(List<ExampleExcelParam> collect) {
+        exampleExcelService.deal();
         List<ExampleExcel> list = exampleExcelService.list;
         Map<String, String> nameMaps = exampleExcelService.getNameMaps();
         Map<String, String> idNameMaps = exampleExcelService.getIdNameMaps();
