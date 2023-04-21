@@ -1,7 +1,9 @@
 package com.github.example.excel;
 
 import com.alibaba.excel.annotation.ExcelProperty;
+import com.github.excel.dto.ExcelInDto;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 
 /**
  * example导入对象
@@ -12,7 +14,8 @@ import lombok.Data;
  * @description :
  */
 @Data
-public class ExampleExcelParam {
+@EqualsAndHashCode(callSuper = true)
+public class ExampleExcelParam extends ExcelInDto {
     @ExcelProperty("姓名首字母")
     private String initials;
     @ExcelProperty("创建人")

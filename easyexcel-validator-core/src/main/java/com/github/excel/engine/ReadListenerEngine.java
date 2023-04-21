@@ -8,6 +8,7 @@ import cn.hutool.core.lang.func.LambdaUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.ReflectUtil;
 import com.github.excel.annotation.OnlyKey;
+import com.github.excel.dto.ExcelInDto;
 import com.github.excel.processor.ExcelAnnotationProcessor;
 import com.github.excel.dto.ExcelErrorDto;
 import com.github.excel.utils.CastUtils;
@@ -32,7 +33,7 @@ import java.util.stream.Collectors;
  * @date: 2023/3/22 17:01
  * @description : 服务Excel监听器核心模块
  */
-public abstract class ReadListenerEngine<T, A extends Annotation> extends ExcelAnnotationProcessor<A> {
+public abstract class ReadListenerEngine<T extends ExcelInDto, A extends Annotation> extends ExcelAnnotationProcessor<A> {
     private final Map<String, ExcelErrorDto> errorDataMap = new TreeMap<>();
 
     @Getter
@@ -523,10 +524,9 @@ public abstract class ReadListenerEngine<T, A extends Annotation> extends ExcelA
      * 检查集合是否完全相同
      *
      * @param excelParamsList
-     * @param indexName
      * @param fieIdNames
      */
-    protected void checkFieldValue(Collection<List<T>> excelParamsList, String indexName, String... fieIdNames) {
+    protected void checkFieldValue(Collection<List<T>> excelParamsList, String... fieIdNames) {
         if (excelParamsList.size() <= 1) {
             return;
         }
@@ -542,12 +542,12 @@ public abstract class ReadListenerEngine<T, A extends Annotation> extends ExcelA
                     onlyKey.set(fieldValue.toString());
                 }
             });
-            Optional<T> minE = excelParams.stream().min(Comparator.comparing(item -> Integer.parseInt(ReflectUtil.getFieldValue(item, this.fieldMap.get(indexName)).toString())));
-            Optional<T> maxE = excelParams.stream().max(Comparator.comparing(item -> Integer.parseInt(ReflectUtil.getFieldValue(item, this.fieldMap.get(indexName)).toString())));
+            Optional<T> minE = excelParams.stream().min(Comparator.comparing(ExcelInDto::getIndex));
+            Optional<T> maxE = excelParams.stream().max(Comparator.comparing(ExcelInDto::getIndex));
             AtomicReference<Integer> min = new AtomicReference<>(1);
             AtomicReference<Integer> max = new AtomicReference<>(1);
-            minE.ifPresent(item -> min.set(Integer.parseInt(ReflectUtil.getFieldValue(item, this.fieldMap.get(indexName)).toString())));
-            maxE.ifPresent(item -> max.set(Integer.parseInt(ReflectUtil.getFieldValue(item, this.fieldMap.get(indexName)).toString())));
+            minE.ifPresent(item -> min.set(item.getIndex()));
+            maxE.ifPresent(item -> max.set(item.getIndex()));
             for (int i = 1; i < excelParams.size(); i++) {
                 T val = excelParams.get(i);
                 filterFieldMap.values().forEach(v -> {

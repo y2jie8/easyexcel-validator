@@ -10,6 +10,7 @@ import com.alibaba.excel.read.listener.ReadListener;
 import com.alibaba.excel.read.metadata.holder.AbstractReadHolder;
 import com.alibaba.excel.util.ListUtils;
 import com.github.excel.annotation.OnlyKey;
+import com.github.excel.dto.ExcelInDto;
 import com.github.excel.engine.ReadListenerEngine;
 import com.github.excel.function.LambdaQueryFunction;
 import com.github.excel.validator.ExcelValidator;
@@ -30,7 +31,7 @@ import java.util.*;
  * @description : 读取Excel文件监听基类
  */
 @Slf4j
-public abstract class BaseReadListener<T, A extends Annotation> extends ReadListenerEngine<T, A> implements ReadListener<T>, LambdaQueryFunction {
+public abstract class BaseReadListener<T extends ExcelInDto, A extends Annotation> extends ReadListenerEngine<T, A> implements ReadListener<T>, LambdaQueryFunction {
     /**
      * 缓存的数据
      */
@@ -155,6 +156,7 @@ public abstract class BaseReadListener<T, A extends Annotation> extends ReadList
      * @param context
      */
     private void dealData(T data, AnalysisContext context) {
+        data.setIndex(getExcelIndex(context));
         Map<String, Field> fieldMap = super.getFieldMap();
         for (Field field : fieldMap.values()) {
             boolean onlyKey = field.isAnnotationPresent(OnlyKey.class);
