@@ -48,6 +48,7 @@ public class ExampleExcelListener extends BaseReadListener<ExampleExcelParam, Ex
             super.checkSetCommon(list, ExampleExcel::getInitialsName, excelParam.getCreatorName(), ExampleExcelParam::getCreatorName);
             super.checkMapCommon(nameMaps, excelParam.getInitials(), excel::setInitialsName, ExampleExcelParam::getInitials);
             super.checkMapCommon(idNameMaps, excelParam.getCreatorName(), excel::setCreatorId, ExampleExcelParam::getCreatorName);
+            super.selfIncreasing();
             saveData.add(excel);
         }
         ifPresent(super.isSuccess(), () -> {
