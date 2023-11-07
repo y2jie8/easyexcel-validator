@@ -6,8 +6,10 @@ import cn.hutool.core.util.ReflectUtil;
 import com.alibaba.excel.context.AnalysisContext;
 import com.alibaba.excel.exception.ExcelDataConvertException;
 import com.alibaba.excel.metadata.CellExtra;
+import com.alibaba.excel.metadata.data.ReadCellData;
 import com.alibaba.excel.read.listener.ReadListener;
 import com.alibaba.excel.read.metadata.holder.AbstractReadHolder;
+import com.alibaba.excel.util.ConverterUtils;
 import com.alibaba.excel.util.ListUtils;
 import com.github.excel.annotation.OnlyKey;
 import com.github.excel.dto.ExcelInDto;
@@ -89,6 +91,30 @@ public abstract class BaseReadListener<T extends ExcelInDto, A extends Annotatio
         }
     }
 
+    /**
+     * 这里会一行行的返回头
+     *
+     * @param headMap
+     * @param context
+     */
+    @Override
+    public void invokeHead(Map<Integer, ReadCellData<?>> headMap, AnalysisContext context) {
+        Integer rowIndex = context.readRowHolder().getRowIndex() + 1;
+        Integer headRowNumber = ((AbstractReadHolder) context.currentReadHolder()).getHeadRowNumber();
+        if (rowIndex.equals(headRowNumber)) {
+            Map<Integer, String> integerStringMap = ConverterUtils.convertToStringMap(headMap, context);
+            Map<String, Field> fieldMap = super.getFieldMap();
+            for (Field field : fieldMap.values()) {
+                String excelPropertyValue = getExcelPropertyValue(field);
+                if (!excelPropertyValue.isEmpty()) {
+                    if (!integerStringMap.containsValue(excelPropertyValue)) {
+                        log.error("导入模板不匹配，integerStringMap：[{}],excelPropertyValue：[{}]", integerStringMap, excelPropertyValue);
+                        throw new RuntimeException("Excel模版错误");
+                    }
+                }
+            }
+        }
+    }
 
     /**
      * 这个每一条数据解析都会来调用
@@ -206,7 +232,7 @@ public abstract class BaseReadListener<T extends ExcelInDto, A extends Annotatio
      * @return
      */
     protected Integer getExcelIndex(AnalysisContext context) {
-        return ((AbstractReadHolder) context.currentReadHolder()).getHeadRowNumber() + 1;
+        return context.readRowHolder().getRowIndex() + 1;
     }
 
     @Override
